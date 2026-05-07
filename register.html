@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Registration - Smart Attendance AI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-blue: #4A90E2;
+            --primary-dark: #3D7BC4;
+            --primary-light: #6FAED9;
+            --primary-gradient: linear-gradient(135deg, #4A90E2 0%, #6FAED9 100%);
+            --sidebar-blue: #0F2B3D;
+            --sidebar-hover: #1A3F57;
+            --sidebar-active: #00C9A7;
+            --background: #F0F7FF;
+            --card-white: #FFFFFF;
+            --text-dark: #1A2C3E;
+            --text-light: #5A6E7F;
+            --border-color: #E9EFF4;
+            --success: #28C76F;
+            --warning: #FF9F43;
+            --danger: #EA5455;
+            --info: #00CFE8;
+            --box-shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.05);
+            --box-shadow-md: 0 8px 24px rgba(0, 0, 0, 0.08);
+            --box-shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.12);
+            --border-radius: 20px;
+            --card-radius: 24px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background: var(--background);
+            min-height: 100vh;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(165deg, #071e2c 0%, #0a2a3b 100%);
+            color: white;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            box-shadow: 6px 0 25px rgba(0, 0, 0, 0.12);
+            z-index: 10;
+        }
+
+        .sidebar-header {
+            padding: 32px 24px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        .logo-icon {
+            font-size: 2.4rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .sidebar-header h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 8px;
+            background: linear-gradient(120deg, #FFF, #B8E1FC);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .sidebar-header p {
+            font-size: 0.75rem;
+            opacity: 0.75;
+            margin-top: 6px;
+        }
+        .sidebar-header p i {
+            font-size: 0.7rem;
+            color: #00C9A7;
+        }
+
+        .sidebar-menu {
+            padding: 0 16px;
+        }
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 18px;
+            margin-bottom: 6px;
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            border-radius: 14px;
+            transition: all 0.25s ease;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        .sidebar-menu a i {
+            width: 22px;
+            font-size: 1.2rem;
+        }
+        .sidebar-menu a:hover {
+            background: rgba(255,255,255,0.08);
+            color: white;
+            transform: translateX(5px);
+        }
+        .sidebar-menu a.active {
+            background: linear-gradient(95deg, rgba(0, 201, 167, 0.18), rgba(0, 201, 167, 0.08));
+            color: #00C9A7;
+        }
+        .sidebar-menu a.active i {
+            color: #00C9A7;
+        }
+
+        .sidebar-footer {
+            position: absolute;
+            bottom: 20px;
+            width: calc(100% - 32px);
+            left: 16px;
+            padding: 12px 0;
+            border-top: 1px solid rgba(255,255,255,0.08);
+        }
+        .sidebar-footer a {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 12px 20px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #FFB5A7;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .sidebar-footer a:hover {
+            background: var(--danger);
+            color: white;
+            transform: translateY(-3px);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 30px 32px;
+        }
+
+        .content-header {
+            margin-bottom: 28px;
+        }
+        .content-header h1 {
+            font-size: 1.9rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #1A2C3E, #2D4C6E);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .content-header p {
+            color: var(--text-light);
+            margin-top: 5px;
+        }
+
+        /* Two Column Layout */
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        /* Webcam Container with Circular Camera */
+        .webcam-container {
+            background: var(--card-white);
+            border-radius: var(--card-radius);
+            padding: 24px;
+            box-shadow: var(--box-shadow-sm);
+            border: 1px solid var(--border-color);
+        }
+        .webcam-container h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-left: 4px solid var(--primary-blue);
+            padding-left: 14px;
+        }
+
+        /* Circular Camera Wrapper */
+        .webcam-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+            border-radius: 50%;
+            overflow: hidden;
+            background: #0a0a0a;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 0 4px rgba(74,144,226,0.3), 0 0 0 8px rgba(74,144,226,0.1);
+            aspect-ratio: 1 / 1;
+        }
+        .webcam-wrapper video,
+        .webcam-wrapper canvas {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .webcam-wrapper canvas {
+            display: none;
+        }
+
+        /* Circular Scanning Overlay */
+        .scanning-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+            border-radius: 50%;
+            overflow: hidden;
+        }
+        .scanning-overlay::before {
+            content: '';
+            position: absolute;
+            top: 10%;
+            left: 10%;
+            width: 80%;
+            height: 80%;
+            border-radius: 50%;
+            border: 2px solid rgba(0, 201, 167, 0.6);
+            box-shadow: 0 0 20px rgba(0,201,167,0.3);
+        }
+        .scan-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #00C9A7, #4A90E2, #00C9A7, transparent);
+            animation: circularScan 2.5s ease-in-out infinite;
+            border-radius: 2px;
+        }
+        @keyframes circularScan {
+            0% { top: 0; opacity: 0; }
+            10% { opacity: 1; }
+            50% { top: 100%; opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 0; opacity: 0; }
+        }
+        
+        /* Corner accents for circular frame */
+        .corner-accent {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border-color: #00C9A7;
+            border-style: solid;
+            border-width: 0;
+            z-index: 15;
+        }
+        .corner-tl {
+            top: 15px;
+            left: 15px;
+            border-top-width: 3px;
+            border-left-width: 3px;
+            border-radius: 8px 0 0 0;
+        }
+        .corner-tr {
+            top: 15px;
+            right: 15px;
+            border-top-width: 3px;
+            border-right-width: 3px;
+            border-radius: 0 8px 0 0;
+        }
+        .corner-bl {
+            bottom: 15px;
+            left: 15px;
+            border-bottom-width: 3px;
+            border-left-width: 3px;
+            border-radius: 0 0 0 8px;
+        }
+        .corner-br {
+            bottom: 15px;
+            right: 15px;
+            border-bottom-width: 3px;
+            border-right-width: 3px;
+            border-radius: 0 0 8px 0;
+        }
+
+        .webcam-controls {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        /* Modern Buttons */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 40px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-primary {
+            background: var(--primary-gradient);
+            color: white;
+            box-shadow: 0 2px 8px rgba(74,144,226,0.3);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(74,144,226,0.4);
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #28C76F, #20A859);
+            color: white;
+        }
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(40,199,111,0.4);
+        }
+        .btn-secondary {
+            background: #F0F4F9;
+            color: var(--text-dark);
+            border: 1px solid var(--border-color);
+        }
+        .btn-secondary:hover {
+            background: var(--border-color);
+            transform: translateY(-2px);
+        }
+        .btn-warning {
+            background: linear-gradient(135deg, #FF9F43, #FF7B2C);
+            color: white;
+        }
+
+        /* Form Container */
+        .form-container {
+            background: var(--card-white);
+            border-radius: var(--card-radius);
+            padding: 24px;
+            box-shadow: var(--box-shadow-sm);
+            border: 1px solid var(--border-color);
+        }
+        .form-container h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-left: 4px solid var(--primary-blue);
+            padding-left: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-dark);
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+        .form-group label i {
+            margin-right: 6px;
+            color: var(--primary-blue);
+        }
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            background: var(--card-white);
+        }
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: var(--primary-blue);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(74,144,226,0.1);
+        }
+
+        /* Preview Section */
+        .preview-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: var(--background);
+            border-radius: 16px;
+            text-align: center;
+        }
+        .preview-section h4 {
+            font-size: 0.85rem;
+            margin-bottom: 10px;
+            color: var(--text-dark);
+        }
+        .captured-faces {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .face-thumb {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 3px solid var(--success);
+            object-fit: cover;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        /* Status Messages */
+        .face-status {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        /* Instructions Box */
+        .instructions-box {
+            margin-top: 20px;
+            background: linear-gradient(135deg, #F8FCFF, #EFF5FF);
+            padding: 18px;
+            border-radius: 16px;
+            border: 1px solid rgba(74,144,226,0.2);
+        }
+        .instructions-box h4 {
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--primary-blue);
+        }
+        .instructions-box ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        .instructions-box li {
+            padding: 6px 0;
+            font-size: 0.75rem;
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .instructions-box li i {
+            width: 20px;
+            color: var(--success);
+            font-size: 0.8rem;
+        }
+
+        /* Toast Notification Popup */
+        .toast-notification {
+            position: fixed;
+            top: 80px;
+            right: 30px;
+            background: white;
+            border-radius: 16px;
+            padding: 16px 20px;
+            min-width: 300px;
+            max-width: 380px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            border-left: 4px solid;
+        }
+        .toast-notification.show {
+            transform: translateX(0);
+        }
+        .toast-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        .toast-content {
+            flex: 1;
+        }
+        .toast-title {
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+        }
+        .toast-message {
+            font-size: 0.75rem;
+            color: var(--text-light);
+        }
+        .toast-close {
+            cursor: pointer;
+            color: var(--text-light);
+            transition: 0.2s;
+        }
+        .toast-close:hover {
+            color: var(--danger);
+        }
+        .toast-success { border-left-color: var(--success); }
+        .toast-success .toast-icon { background: #E0F9E8; color: var(--success); }
+        .toast-info { border-left-color: var(--primary-blue); }
+        .toast-info .toast-icon { background: #E3F2FD; color: var(--primary-blue); }
+        .toast-warning { border-left-color: var(--warning); }
+        .toast-warning .toast-icon { background: #FFF3E0; color: var(--warning); }
+
+        @media (max-width: 1000px) {
+            .two-column { grid-template-columns: 1fr; }
+            .main-content { margin-left: 280px; padding: 20px; }
+        }
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); width: 0; }
+            .main-content { margin-left: 0; }
+            .toast-notification { right: 15px; left: 15px; min-width: auto; }
+        }
+    </style>
+</head>
+<body>
+<div class="dashboard-container">
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <i class="fas fa-robot logo-icon"></i>
+            <h2>Smart Attendance</h2>
+            <p><i class="fas fa-microchip"></i> AI Powered Face Recognition</p>
+        </div>
+        <div class="sidebar-menu">
+            <a href="dashboard.html"><i class="fas fa-chart-pie"></i> Dashboard</a>
+            <a href="register.html" class="active"><i class="fas fa-user-plus"></i> Registration</a>
+            <a href="attendance.html"><i class="fas fa-camera-retro"></i> Attendance</a>
+            <a href="reports.html"><i class="fas fa-file-alt"></i> Reports</a>
+            <a href="students.html"><i class="fas fa-users"></i> Students</a>
+            <a href="notifications.html"><i class="fas fa-bell"></i> Notifications</a>
+            <a href="settings.html"><i class="fas fa-sliders-h"></i> Settings</a>
+        </div>
+        <div class="sidebar-footer">
+            <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="content-header">
+            <h1>Student Registration</h1>
+            <p>Register new students with AI face capture</p>
+        </div>
+
+        <div class="two-column">
+            <!-- Left: Circular Face Capture -->
+            <div class="webcam-container">
+                <h3><i class="fas fa-camera" style="color: var(--primary-blue);"></i> Circular Face Capture</h3>
+                
+                <div class="webcam-wrapper">
+                    <div class="scanning-overlay">
+                        <div class="scan-line"></div>
+                        <div class="corner-accent corner-tl"></div>
+                        <div class="corner-accent corner-tr"></div>
+                        <div class="corner-accent corner-bl"></div>
+                        <div class="corner-accent corner-br"></div>
+                    </div>
+                    <video id="video" autoplay playsinline></video>
+                    <canvas id="canvas" style="display: none;"></canvas>
+                </div>
+                
+                <div class="webcam-controls">
+                    <button id="startBtn" class="btn btn-success"><i class="fas fa-play"></i> Start Camera</button>
+                    <button id="captureBtn" class="btn btn-primary" disabled><i class="fas fa-camera"></i> Capture Face</button>
+                    <button id="retakeBtn" class="btn btn-secondary" style="display: none;"><i class="fas fa-redo"></i> Reset</button>
+                </div>
+                
+                <div id="faceStatus" class="face-status" style="display: none;"></div>
+                
+                <div id="previewSection" style="display: none; margin-top: 15px;">
+                    <div class="preview-section">
+                        <h4><i class="fas fa-images"></i> Captured Face</h4>
+                        <img id="facePreview" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid var(--success);">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right: Student Details Form -->
+            <div class="form-container">
+                <h3><i class="fas fa-user-edit"></i> Student Information</h3>
+                
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label><i class="fas fa-id-card"></i> Student ID / Roll Number <span style="color: var(--danger);">*</span></label>
+                        <input type="text" id="student_id" required placeholder="e.g., 2024CS001">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label><i class="fas fa-user"></i> Full Name <span style="color: var(--danger);">*</span></label>
+                        <input type="text" id="name" required placeholder="Enter student's full name">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label><i class="fas fa-graduation-cap"></i> Class / Year <span style="color: var(--danger);">*</span></label>
+                        <select id="class_name" required>
+                            <option value="">Select Class</option>
+                            <option value="BCA 1st Year">BCA 1st Year</option>
+                            <option value="BCA 2nd Year">BCA 2nd Year</option>
+                            <option value="BCA 3rd Year">BCA 3rd Year</option>
+                            <option value="MCA 1st Year">MCA 1st Year</option>
+                            <option value="MCA 2nd Year">MCA 2nd Year</option>
+                            <option value="B.Tech CSE 1st Year">B.Tech CSE 1st Year</option>
+                            <option value="B.Tech CSE 2nd Year">B.Tech CSE 2nd Year</option>
+                            <option value="B.Tech CSE 3rd Year">B.Tech CSE 3rd Year</option>
+                            <option value="B.Tech CSE 4th Year">B.Tech CSE 4th Year</option>
+                            <option value="MBA 1st Year">MBA 1st Year</option>
+                            <option value="MBA 2nd Year">MBA 2nd Year</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label><i class="fas fa-building"></i> Department</label>
+                        <input type="text" id="department" placeholder="e.g., Computer Science">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label><i class="fas fa-layer-group"></i> Section</label>
+                        <input type="text" id="section" placeholder="e.g., A, B, C">
+                    </div>
+                    
+                    <div style="display: flex; gap: 12px; margin-top: 25px;">
+                        <button type="submit" class="btn btn-primary" id="submitBtn" disabled>
+                            <i class="fas fa-save"></i> Register Student
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="window.location.href='students.html'">
+                            <i class="fas fa-list"></i> View Students
+                        </button>
+                    </div>
+                </form>
+                
+                <div class="instructions-box">
+                    <h4><i class="fas fa-lightbulb"></i> Face Capture Tips</h4>
+                    <ul>
+                        <li><i class="fas fa-sun"></i> Ensure good lighting on face</li>
+                        <li><i class="fas fa-glasses"></i> Remove glasses if possible</li>
+                        <li><i class="fas fa-eye"></i> Look directly at the camera</li>
+                        <li><i class="fas fa-smile"></i> Keep a neutral expression</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API_BASE_URL = 'http://127.0.0.1:5000';
+    
+    if (!localStorage.getItem('adminToken')) {
+        window.location.href = 'index.html';
+    }
+    
+    document.getElementById('logoutBtn').addEventListener('click', (e) => {
+        e.preventDefault();
+        localStorage.removeItem('adminToken');
+        window.location.href = 'index.html';
+    });
+
+    // Toast Notification Function
+    function showToast(title, message, type = 'success') {
+        const toast = document.createElement('div');
+        toast.className = `toast-notification toast-${type}`;
+        toast.innerHTML = `
+            <div class="toast-icon">
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'info' ? 'fa-info-circle' : 'fa-exclamation-triangle'}"></i>
+            </div>
+            <div class="toast-content">
+                <div class="toast-title">${title}</div>
+                <div class="toast-message">${message}</div>
+            </div>
+            <div class="toast-close"><i class="fas fa-times"></i></div>
+        `;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => toast.classList.add('show'), 10);
+        
+        const closeBtn = toast.querySelector('.toast-close');
+        closeBtn.addEventListener('click', () => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        });
+        
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, 4000);
+    }
+
+    // ============ CAPTURE IMAGE FUNCTION ============
+    function captureImage() {
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const context = canvas.getContext('2d');
+        
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        
+        const imageData = canvas.toDataURL('image/jpeg');
+        return imageData;
+    }
+    // ================================================
+
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const startBtn = document.getElementById('startBtn');
+    const captureBtn = document.getElementById('captureBtn');
+    const retakeBtn = document.getElementById('retakeBtn');
+    const submitBtn = document.getElementById('submitBtn');
+    const faceStatus = document.getElementById('faceStatus');
+    const previewSection = document.getElementById('previewSection');
+    const facePreview = document.getElementById('facePreview');
+    
+    let stream = null;
+    let capturedImage = null;
+
+    startBtn.addEventListener('click', async () => {
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({ 
+                video: { width: { ideal: 480 }, height: { ideal: 480 }, facingMode: 'user' },
+                audio: false 
+            });
+            video.srcObject = stream;
+            startBtn.disabled = true;
+            captureBtn.disabled = false;
+            faceStatus.style.display = 'flex';
+            faceStatus.innerHTML = '<i class="fas fa-video"></i> Camera ready! Position face in circular frame.';
+            faceStatus.style.background = '#E0F9E8';
+            faceStatus.style.color = '#1E7B48';
+            showToast('Camera Started', 'Position your face in the circular frame', 'info');
+        } catch (err) {
+            showToast('Camera Error', err.message, 'warning');
+        }
+    });
+
+    captureBtn.addEventListener('click', async () => {
+        if (!video.videoWidth || !video.videoHeight) {
+            showToast('Camera Error', 'Camera not ready. Please start camera first.', 'warning');
+            return;
+        }
+        
+        // Capture image from video
+        const faceImage = captureImage();
+        capturedImage = faceImage;
+        
+        // Show preview
+        facePreview.src = faceImage;
+        previewSection.style.display = 'block';
+        
+        faceStatus.style.display = 'flex';
+        faceStatus.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Detecting face...';
+        faceStatus.style.background = '#E3F2FD';
+        faceStatus.style.color = '#1E5A88';
+        
+        try {
+            // Detect face in captured image
+            const response = await fetch(`${API_BASE_URL}/api/detect-faces`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ image: faceImage })
+            });
+            
+            const data = await response.json();
+            
+            if (data.faces_detected > 0) {
+                faceStatus.style.display = 'flex';
+                faceStatus.innerHTML = '<i class="fas fa-check-circle"></i> ✓ Face detected! Ready to register.';
+                faceStatus.style.background = '#E0F9E8';
+                faceStatus.style.color = '#1E7B48';
+                submitBtn.disabled = false;
+                captureBtn.disabled = true;
+                retakeBtn.style.display = 'inline-block';
+                showToast('Face Detected!', 'Face captured successfully. You can now register.', 'success');
+            } else {
+                faceStatus.style.display = 'flex';
+                faceStatus.innerHTML = '<i class="fas fa-exclamation-triangle"></i> No face detected. Please retake.';
+                faceStatus.style.background = '#FFF3E0';
+                faceStatus.style.color = '#B85C00';
+                capturedImage = null;
+                previewSection.style.display = 'none';
+                showToast('Face Detection Failed', 'No face detected. Please adjust lighting and position.', 'warning');
+            }
+        } catch (error) {
+            faceStatus.style.display = 'flex';
+            faceStatus.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Detection error. Please try again.';
+            faceStatus.style.background = '#FFE5E5';
+            faceStatus.style.color = '#C0392B';
+            console.error('Detection error:', error);
+        }
+    });
+
+    retakeBtn.addEventListener('click', () => {
+        capturedImage = null;
+        previewSection.style.display = 'none';
+        captureBtn.disabled = false;
+        retakeBtn.style.display = 'none';
+        submitBtn.disabled = true;
+        faceStatus.style.display = 'flex';
+        faceStatus.innerHTML = '<i class="fas fa-info-circle"></i> Retake your face photo.';
+        faceStatus.style.background = '#E3F2FD';
+        faceStatus.style.color = '#1E5A88';
+        showToast('Retake', 'Please capture your face again', 'info');
+    });
+
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        if (!capturedImage) {
+            showToast('No Face Captured', 'Please capture a face image first!', 'warning');
+            return;
+        }
+        
+        const studentId = document.getElementById('student_id').value.trim();
+        const name = document.getElementById('name').value.trim();
+        const className = document.getElementById('class_name').value;
+        
+        if (!studentId || !name || !className) {
+            showToast('Missing Fields', 'Please fill all required fields', 'warning');
+            return;
+        }
+        
+        const formData = {
+            student_id: studentId,
+            name: name,
+            class_name: className,
+            section: document.getElementById('section').value.trim() || '',
+            department: document.getElementById('department').value.trim() || '',
+            face_image: capturedImage
+        };
+        
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registering...';
+        
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/register`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                showToast('Registration Successful!', `Student ${name} registered with face`, 'success');
+                
+                document.getElementById('registerForm').reset();
+                capturedImage = null;
+                previewSection.style.display = 'none';
+                captureBtn.disabled = true;
+                submitBtn.disabled = true;
+                retakeBtn.style.display = 'none';
+                
+                if (stream) {
+                    stream.getTracks().forEach(track => track.stop());
+                    stream = null;
+                }
+                startBtn.disabled = false;
+                faceStatus.style.display = 'none';
+                
+                setTimeout(() => {
+                    window.location.href = 'students.html';
+                }, 2000);
+            } else {
+                showToast('Registration Failed', data.error || 'Something went wrong', 'warning');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-save"></i> Register Student';
+            }
+        } catch (error) {
+            console.error('Registration error:', error);
+            showToast('Error', error.message, 'danger');
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-save"></i> Register Student';
+        }
+    });
+
+    window.addEventListener('beforeunload', () => {
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+        }
+    });
+</script>
+</body>
+</html>

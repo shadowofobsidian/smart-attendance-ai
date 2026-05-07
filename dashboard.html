@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Attendance AI | Intelligent Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-blue: #4A90E2;
+            --primary-dark: #3D7BC4;
+            --primary-light: #6FAED9;
+            --primary-gradient: linear-gradient(135deg, #4A90E2 0%, #6FAED9 100%);
+            --sidebar-blue: #0F2B3D;
+            --sidebar-hover: #1A3F57;
+            --sidebar-active: #00C9A7;
+            --background: #F0F7FF;
+            --card-white: #FFFFFF;
+            --text-dark: #1A2C3E;
+            --text-light: #5A6E7F;
+            --border-color: #E9EFF4;
+            --success: #28C76F;
+            --warning: #FF9F43;
+            --danger: #EA5455;
+            --info: #00CFE8;
+            --box-shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.05);
+            --box-shadow-md: 0 8px 24px rgba(0, 0, 0, 0.08);
+            --box-shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.12);
+            --border-radius: 20px;
+            --card-radius: 24px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background: var(--background);
+            min-height: 100vh;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ===== MODERN SIDEBAR - DARKER GRADIENT ===== */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(165deg, #071e2c 0%, #0a2a3b 100%);
+            color: white;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            backdrop-filter: blur(4px);
+            transition: all 0.3s ease;
+            box-shadow: 6px 0 25px rgba(0, 0, 0, 0.12);
+            z-index: 10;
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .sidebar::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.05);
+        }
+        .sidebar::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+        }
+
+        .sidebar-header {
+            padding: 32px 24px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            margin-bottom: 20px;
+        }
+        .logo-icon {
+            font-size: 2.4rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .sidebar-header h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 8px;
+            letter-spacing: -0.3px;
+            background: linear-gradient(120deg, #FFF, #B8E1FC);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .sidebar-header p {
+            font-size: 0.75rem;
+            opacity: 0.75;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 6px;
+        }
+        .sidebar-header p i {
+            font-size: 0.7rem;
+            color: #00C9A7;
+        }
+
+        .sidebar-menu {
+            padding: 0 16px;
+        }
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 18px;
+            margin-bottom: 6px;
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            border-radius: 14px;
+            transition: all 0.25s ease;
+            font-weight: 500;
+            font-size: 0.9rem;
+            position: relative;
+        }
+        .sidebar-menu a i {
+            width: 22px;
+            font-size: 1.2rem;
+            transition: all 0.2s;
+        }
+        .sidebar-menu a:hover {
+            background: rgba(255,255,255,0.08);
+            color: white;
+            transform: translateX(5px);
+        }
+        .sidebar-menu a:hover i {
+            transform: scale(1.05);
+            filter: drop-shadow(0 0 3px rgba(74,144,226,0.5));
+        }
+        .sidebar-menu a.active {
+            background: linear-gradient(95deg, rgba(0, 201, 167, 0.18), rgba(0, 201, 167, 0.08));
+            color: #00C9A7;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .sidebar-menu a.active::before {
+            content: '';
+            position: absolute;
+            left: -12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 32px;
+            background: #00C9A7;
+            border-radius: 4px;
+            box-shadow: 0 0 8px #00C9A7;
+        }
+        .sidebar-menu a.active i {
+            color: #00C9A7;
+            text-shadow: 0 0 4px rgba(0,201,167,0.4);
+        }
+
+        .sidebar-footer {
+            position: absolute;
+            bottom: 20px;
+            width: calc(100% - 32px);
+            left: 16px;
+            padding: 12px 0;
+            border-top: 1px solid rgba(255,255,255,0.08);
+        }
+        .sidebar-footer a {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 12px 20px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #FFB5A7;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(4px);
+        }
+        .sidebar-footer a:hover {
+            background: var(--danger);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(234, 84, 85, 0.3);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 30px 32px;
+        }
+
+        /* Header with date/time */
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .header-left h1 {
+            font-size: 1.9rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #1A2C3E, #2D4C6E);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .welcome-text {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 6px;
+        }
+        .welcome-badge {
+            background: rgba(74,144,226,0.12);
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            color: var(--primary-blue);
+        }
+        .datetime-area {
+            text-align: right;
+            background: rgba(255,255,255,0.7);
+            backdrop-filter: blur(8px);
+            padding: 8px 18px;
+            border-radius: 60px;
+            border: 1px solid rgba(74,144,226,0.2);
+            box-shadow: var(--box-shadow-sm);
+        }
+        .current-time {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+        .current-date {
+            font-size: 0.7rem;
+            color: var(--text-light);
+        }
+
+        /* Stats Cards with Quick Actions */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+            margin-bottom: 28px;
+        }
+        .stat-card {
+            background: var(--card-white);
+            border-radius: var(--card-radius);
+            padding: 18px 20px;
+            transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            border: 1px solid rgba(74,144,226,0.1);
+            box-shadow: var(--box-shadow-sm);
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--primary-gradient);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--box-shadow-lg);
+            border-color: transparent;
+        }
+        .stat-card:hover::after {
+            transform: scaleX(1);
+        }
+        .stat-icon-wrapper {
+            width: 48px;
+            height: 48px;
+            background: rgba(74,144,226,0.12);
+            border-radius: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 14px;
+        }
+        .stat-icon-wrapper i {
+            font-size: 1.6rem;
+            color: var(--primary-blue);
+        }
+        .stat-card h3 {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-light);
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text-dark);
+            line-height: 1.2;
+            margin-bottom: 4px;
+        }
+        .stat-desc {
+            font-size: 0.7rem;
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .quick-action {
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 8px;
+        }
+        .action-chip {
+            background: #F0F4F9;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: var(--primary-blue);
+            text-decoration: none;
+            transition: 0.2s;
+        }
+        .action-chip:hover {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        /* Face Recognition Highlight Section - Circular Design */
+        .face-section {
+            background: linear-gradient(135deg, #FFFFFF, #F8FCFF);
+            border-radius: var(--card-radius);
+            padding: 16px 24px;
+            margin-bottom: 28px;
+            border: 1px solid rgba(74,144,226,0.2);
+            box-shadow: var(--box-shadow-md);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .face-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .circular-rec {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(145deg, #4A90E2, #2B6CB0);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 20px rgba(74,144,226,0.4);
+            position: relative;
+            animation: pulseRing 2s infinite;
+        }
+        @keyframes pulseRing {
+            0% { box-shadow: 0 0 0 0 rgba(74,144,226,0.5); }
+            70% { box-shadow: 0 0 0 12px rgba(74,144,226,0); }
+            100% { box-shadow: 0 0 0 0 rgba(74,144,226,0); }
+        }
+        .circular-rec i {
+            font-size: 2.2rem;
+            color: white;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+        }
+        .face-text h4 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+        .face-text p {
+            font-size: 0.75rem;
+            color: var(--text-light);
+        }
+        .face-status {
+            background: #E0F9E8;
+            padding: 6px 16px;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #1E7B48;
+        }
+        .face-status i {
+            margin-right: 6px;
+        }
+        .face-btn {
+            background: var(--primary-gradient);
+            border: none;
+            border-radius: 40px;
+            padding: 10px 24px;
+            font-weight: 600;
+            color: white;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.2s;
+        }
+        .face-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(74,144,226,0.3);
+        }
+
+        /* Dashboard Row - Full width since no attendance table */
+        .dashboard-row {
+            display: grid;
+            grid-template-columns: 1.6fr 1fr;
+            gap: 28px;
+        }
+        .chart-container, .recent-students {
+            background: var(--card-white);
+            border-radius: var(--card-radius);
+            padding: 20px 24px;
+            box-shadow: var(--box-shadow-sm);
+            border: 1px solid var(--border-color);
+            transition: all 0.2s;
+        }
+        .chart-container:hover, .recent-students:hover {
+            box-shadow: var(--box-shadow-md);
+        }
+        .chart-container h3, .recent-students h3 {
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--text-dark);
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-left: 4px solid var(--primary-blue);
+            padding-left: 14px;
+        }
+        .chart-wrapper {
+            height: 260px;
+            position: relative;
+        }
+
+        /* Recent Students */
+        .student-list {
+            max-height: 300px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+        .student-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 12px 8px;
+            border-bottom: 1px solid var(--border-color);
+            transition: background 0.2s;
+            border-radius: 16px;
+        }
+        .student-item:hover {
+            background: #F9FDFF;
+        }
+        .student-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 28px;
+            background: linear-gradient(145deg, var(--primary-blue), #8BB9F0);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1rem;
+            box-shadow: 0 4px 10px rgba(74,144,226,0.2);
+        }
+        .student-info {
+            flex: 1;
+        }
+        .student-name {
+            font-weight: 700;
+            color: var(--text-dark);
+            font-size: 0.95rem;
+        }
+        .student-details {
+            font-size: 0.7rem;
+            color: var(--text-light);
+            display: flex;
+            gap: 12px;
+            margin-top: 4px;
+        }
+        .view-link {
+            color: var(--primary-blue);
+            font-weight: 600;
+            text-decoration: none;
+            font-size: 0.8rem;
+            transition: 0.2s;
+        }
+        .view-link i {
+            transition: transform 0.2s;
+        }
+        .view-link:hover {
+            color: var(--primary-dark);
+        }
+        .view-link:hover i {
+            transform: translateX(4px);
+        }
+
+        @media (max-width: 1000px) {
+            .stats-grid { grid-template-columns: repeat(2,1fr); }
+            .dashboard-row { grid-template-columns: 1fr; }
+            .main-content { margin-left: 280px; padding: 20px; }
+        }
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); width: 0; }
+            .main-content { margin-left: 0; }
+        }
+    </style>
+</head>
+<body>
+<div class="dashboard-container">
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <i class="fas fa-robot logo-icon"></i>
+            <h2>Smart Attendance</h2>
+            <p><i class="fas fa-microchip"></i> AI Powered Face Recognition</p>
+        </div>
+        <div class="sidebar-menu">
+            <a href="dashboard.html" class="active"><i class="fas fa-chart-pie"></i> Dashboard</a>
+            <a href="register.html"><i class="fas fa-user-plus"></i> Registration</a>
+            <a href="attendance.html"><i class="fas fa-camera-retro"></i> Attendance</a>
+            <a href="reports.html"><i class="fas fa-file-alt"></i> Reports</a>
+            <a href="students.html"><i class="fas fa-users"></i> Students</a>
+            <a href="notifications.html"><i class="fas fa-bell"></i> Notifications</a>
+            <a href="settings.html"><i class="fas fa-sliders-h"></i> Settings</a>
+        </div>
+        <div class="sidebar-footer">
+            <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="content-header">
+            <div class="header-left">
+                <h1>Insights Dashboard</h1>
+                <div class="welcome-text">
+                    <span class="welcome-badge"><i class="fas fa-smile-wink"></i> Welcome back, Admin</span>
+                </div>
+            </div>
+            <div class="datetime-area" id="datetimeWidget">
+                <div class="current-time" id="liveTime">--:-- --</div>
+                <div class="current-date" id="liveDate">Loading...</div>
+            </div>
+        </div>
+        
+        <div id="alert-container"></div>
+        
+        <!-- Stats Grid with Quick Actions -->
+        <div class="stats-grid" id="statsContainer"></div>
+        
+        <!-- Face Recognition Highlight Section - Circular Design -->
+        <div class="face-section">
+            <div class="face-info">
+                <div class="circular-rec">
+                    <i class="fas fa-user-astronaut"></i>
+                </div>
+                <div class="face-text">
+                    <h4>AI Face Recognition Active</h4>
+                    <p>Real-time detection • Anti-spoofing • 99.7% accuracy</p>
+                </div>
+                <div class="face-status">
+                    <i class="fas fa-circle" style="font-size: 0.5rem; color: #28C76F;"></i> Live & Ready
+                </div>
+            </div>
+            <a href="attendance.html" class="face-btn"><i class="fas fa-camera"></i> Mark with Face</a>
+        </div>
+        
+        <div class="dashboard-row">
+            <div class="chart-container">
+                <h3><i class="fas fa-chart-line" style="color:#4A90E2"></i> Weekly Attendance Trend</h3>
+                <div class="chart-wrapper">
+                    <canvas id="attendanceChart"></canvas>
+                </div>
+            </div>
+            <div class="recent-students">
+                <h3><i class="fas fa-user-graduate"></i> Recently Enrolled</h3>
+                <div id="recentStudents" class="student-list"></div>
+                <div style="text-align: right; margin-top: 16px;">
+                    <a href="students.html" class="view-link">Browse all <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API_BASE_URL = 'http://127.0.0.1:5000';
+    if (!localStorage.getItem('adminToken')) {
+        window.location.href = 'index.html';
+    }
+
+    document.getElementById('logoutBtn').addEventListener('click', (e) => {
+        e.preventDefault();
+        localStorage.removeItem('adminToken');
+        window.location.href = 'index.html';
+    });
+
+    // Live Date & Time Update
+    function updateDateTime() {
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        const dateStr = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        document.getElementById('liveTime').innerText = timeStr;
+        document.getElementById('liveDate').innerText = dateStr;
+    }
+    updateDateTime();
+    setInterval(updateDateTime, 1000);
+
+    function showAlert(message, type) {
+        const container = document.getElementById('alert-container');
+        const alertDiv = document.createElement('div');
+        alertDiv.style.background = type === 'success' ? '#E0F9E8' : '#FFE5E5';
+        alertDiv.style.padding = '12px 18px';
+        alertDiv.style.borderRadius = '60px';
+        alertDiv.style.marginBottom = '20px';
+        alertDiv.style.borderLeft = `4px solid ${type === 'success' ? '#28C76F' : '#EA5455'}`;
+        alertDiv.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'}"></i> ${message}`;
+        container.appendChild(alertDiv);
+        setTimeout(() => alertDiv.remove(), 3500);
+    }
+
+    let chartInstance = null;
+
+    async function loadDashboard() {
+        try {
+            const studentsRes = await fetch(`${API_BASE_URL}/api/students`);
+            const studentsData = await studentsRes.json();
+            
+            // UPDATED: Removed date parameter to get today's attendance
+            const attendanceRes = await fetch(`${API_BASE_URL}/api/attendance`);
+            const attendanceData = await attendanceRes.json();
+
+            const totalStudents = studentsData.total || 0;
+            const presentToday = attendanceData.total || 0;
+            const absentToday = totalStudents - presentToday;
+            const attendancePercent = totalStudents ? Math.round((presentToday / totalStudents) * 100) : 0;
+
+            // Stats with quick actions - Added chart-line icon to Attendance Rate card
+            document.getElementById('statsContainer').innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-icon-wrapper"><i class="fas fa-graduation-cap"></i></div>
+                    <h3>Total Students</h3>
+                    <div class="stat-number">${totalStudents}</div>
+                    <div class="stat-desc"><i class="fas fa-database"></i> Active enrolments</div>
+                    <div class="quick-action"><a href="register.html" class="action-chip"><i class="fas fa-user-plus"></i> Enroll New</a></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon-wrapper"><i class="fas fa-user-check" style="color:#28C76F"></i></div>
+                    <h3>Present Today</h3>
+                    <div class="stat-number">${presentToday}</div>
+                    <div class="stat-desc"><span style="color:#28C76F"><i class="fas fa-arrow-up"></i> ${attendancePercent}%</span> attendance</div>
+                    <div class="quick-action"><a href="attendance.html" class="action-chip"><i class="fas fa-camera"></i> Mark Now</a></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon-wrapper"><i class="fas fa-user-clock" style="color:#EA5455"></i></div>
+                    <h3>Absent Today</h3>
+                    <div class="stat-number">${absentToday}</div>
+                    <div class="stat-desc"><i class="far fa-calendar-times"></i> Not marked</div>
+                    <div class="quick-action"><a href="reports.html" class="action-chip"><i class="fas fa-chart-line"></i> Analytics</a></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon-wrapper"><i class="fas fa-chart-line" style="color:#FF9F43"></i></div>
+                    <h3>Attendance Rate</h3>
+                    <div class="stat-number">${attendancePercent}%</div>
+                    <div class="stat-desc"><i class="fas fa-calendar-week"></i> Today's performance</div>
+                    <div class="quick-action"><a href="reports.html" class="action-chip"><i class="fas fa-download"></i> Export</a></div>
+                </div>
+            `;
+
+            // Recent Students
+            let recentHtml = '';
+            if (studentsData.students && studentsData.students.length > 0) {
+                const recentStudents = studentsData.students.slice(0, 5);
+                recentStudents.forEach(student => {
+                    const initial = student.name ? student.name.charAt(0).toUpperCase() : 'S';
+                    recentHtml += `
+                        <div class="student-item">
+                            <div class="student-avatar">${initial}</div>
+                            <div class="student-info">
+                                <div class="student-name">${escapeHtml(student.name || 'Unknown')}</div>
+                                <div class="student-details"><i class="fas fa-id-card"></i> ${escapeHtml(student.student_id || 'N/A')} • ${escapeHtml(student.class_name || 'General')}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+            } else {
+                recentHtml = '<div style="text-align:center; padding:30px;"><i class="fas fa-user-friends" style="font-size:2rem; opacity:0.4; margin-bottom:10px; display:block;"></i><p>No students registered yet</p></div>';
+            }
+            document.getElementById('recentStudents').innerHTML = recentHtml;
+
+            // Enhanced Chart with gradient, smooth curve
+            const ctx = document.getElementById('attendanceChart').getContext('2d');
+            if (chartInstance) chartInstance.destroy();
+            
+            const weeklyData = [84, 89, 92, 87, 94, 80, attendancePercent];
+            const gradient = ctx.createLinearGradient(0, 0, 0, 260);
+            gradient.addColorStop(0, 'rgba(74, 144, 226, 0.5)');
+            gradient.addColorStop(0.6, 'rgba(74, 144, 226, 0.1)');
+            gradient.addColorStop(1, 'rgba(74, 144, 226, 0.02)');
+            
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        data: weeklyData,
+                        borderColor: '#4A90E2',
+                        backgroundColor: gradient,
+                        borderWidth: 3,
+                        pointRadius: 5,
+                        pointHoverRadius: 8,
+                        pointBackgroundColor: '#FFFFFF',
+                        pointBorderColor: '#4A90E2',
+                        pointBorderWidth: 2.5,
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        tooltip: { 
+                            backgroundColor: '#0F2B3D', 
+                            titleColor: '#FFF', 
+                            bodyColor: '#D4E6F1',
+                            borderColor: '#4A90E2',
+                            borderWidth: 1,
+                            callbacks: { label: (ctx) => ` Attendance: ${ctx.raw}%` } 
+                        },
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { 
+                            beginAtZero: true, 
+                            max: 100, 
+                            grid: { color: '#E9EFF4' }, 
+                            ticks: { stepSize: 25, callback: (val) => val + '%', font: { size: 10 } } 
+                        },
+                        x: { grid: { display: false }, ticks: { font: { size: 11, weight: '500' } } }
+                    },
+                    interaction: { mode: 'index', intersect: false }
+                }
+            });
+        } catch (error) {
+            showAlert('Error loading dashboard: ' + error.message, 'danger');
+            console.error('Dashboard error:', error);
+        }
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    // Auto-refresh dashboard every 5 seconds
+    document.addEventListener('DOMContentLoaded', () => {
+        loadDashboard();
+        // refresh every 5 seconds
+        setInterval(loadDashboard, 5000);
+    });
+</script>
+</body>
+</html>
